@@ -20,9 +20,9 @@ export default function NuevaSolicitud() {
   const [error, setError] = useState(null);
   const [enviando, setEnviando] = useState(false);
 
-  // Las categorias vienen del catalogo (base de datos), no estan fijas en el codigo
+  // Solo categorias disponibles: las que Solicitudes ya recibio desde Catalogo por RabbitMQ
   useEffect(() => {
-    api("/categorias")
+    api("/categorias/disponibles")
       .then((lista) => {
         setCategorias(lista);
         if (lista.length > 0) setCategoria(lista[0].nombre);
@@ -101,7 +101,9 @@ export default function NuevaSolicitud() {
               ))}
             </CampoSelect>
             {categorias.length === 0 && (
-              <p className="text-xs text-muted-foreground">No hay categorías todavía.</p>
+              <p className="text-xs text-muted-foreground">
+                Aún no hay categorías disponibles. Si se acaba de crear una, espera unos segundos.
+              </p>
             )}
           </div>
 
