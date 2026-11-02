@@ -9,6 +9,7 @@ import { TicketVivo } from "@/components/ticket-vivo";
 import { useSesion } from "@/components/sesion-provider";
 import { USUARIOS_PRUEBA } from "@/lib/sesion";
 import { MODO_ENTRA } from "@/lib/entra";
+import { PantallaCarga } from "@/components/pantalla-carga";
 
 // Cada elemento entra con un pequeño retraso (ver .entrada en globals.css)
 function retraso(ms) {
@@ -29,6 +30,9 @@ export default function Login() {
     entrar(usuario.id);
     router.push(usuario.rol === "Cliente" ? "/mis-solicitudes" : "/solicitudes");
   }
+
+  // Con Microsoft no se muestra el login hasta saber que no hay sesion
+  if (MODO_ENTRA && (cargando || usuario)) return <PantallaCarga />;
 
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
