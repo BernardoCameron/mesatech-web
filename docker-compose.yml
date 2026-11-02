@@ -1,0 +1,11 @@
+# Front de MesaTech Cloud. Necesita el backend corriendo en http://localhost:8080
+# (repo mesatech-backend, con el perfil sinauth mientras no haya Entra ID).
+services:
+  web:
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8080
+    restart: unless-stopped
+    ports:
+      - "3000:3000"

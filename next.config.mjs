@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  /* config options here */
+  // Salida minima para correr en Docker
+  output: "standalone",
   turbopack: {
     rules: {
       "*.css": {
