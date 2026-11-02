@@ -12,6 +12,7 @@ export default function Categorias() {
   const [error, setError] = useState(null);
   const [aviso, setAviso] = useState(null);
   const [enviando, setEnviando] = useState(false);
+  const [reenviando, setReenviando] = useState(null);
 
   function cargar() {
     api("/categorias")
@@ -19,7 +20,12 @@ export default function Categorias() {
       .catch(() => setError("No se pudieron cargar las categorías."));
   }
 
-  useEffect(cargar, []);
+  // La categoria llega a Solicitudes de forma asincrona: se vuelve a consultar cada 3 segundos
+  useEffect(() => {
+    cargar();
+    const reloj = setInterval(cargar, 3000);
+    return () => clearInterval(reloj);
+  }, []);
 
   async function crear(e) {
     e.preventDefault();
@@ -28,15 +34,36 @@ export default function Categorias() {
     setEnviando(true);
     try {
       await api("/categorias", { metodo: "POST", cuerpo: { nombre } });
-      setAviso("Categoría creada.");
+      setAviso("Categoría creada. Quedará disponible cuando Solicitudes la reciba.");
       setNombre("");
-      cargar();
     } catch (err) {
       if (err.status === 409) setError("Esa categoría ya existe.");
       else if (err.status === 403) setError("No tienes permiso para crear categorías.");
+      else if (err.status === 502)
+        setError("La categoría se guardó, pero no se pudo publicar el evento. Revisa RabbitMQ y usa Reenviar.");
       else setError("No se pudo crear la categoría. Intenta nuevamente.");
     } finally {
       setEnviando(false);
+      cargar();
+    }
+  }
+
+  async function reenviar(id) {
+    setError(null);
+    setAviso(null);
+    setReenviando(id);
+    try {
+      await api(`/categorias/${id}/republicar`, { metodo: "POST" });
+      setAviso("Evento reenviado.");
+    } catch (err) {
+      setError(
+        err.status === 502
+          ? "No se pudo publicar el evento. Revisa que RabbitMQ esté funcionando."
+          : "No se pudo reenviar la categoría."
+      );
+    } finally {
+      setReenviando(null);
+      cargar();
     }
   }
 
@@ -44,7 +71,7 @@ export default function Categorias() {
     <div>
       <h1 className="text-[22px] font-medium tracking-tight">Categorías</h1>
       <p className="mt-1 mb-6 text-sm text-muted-foreground">
-        Categorías que se pueden elegir al crear una solicitud.
+        Una categoría nueva queda pendiente hasta que Solicitudes la recibe; recién ahí se puede usar.
       </p>
 
       <form onSubmit={crear} className="mb-6 max-w-[560px] space-y-4 rounded-xl bg-card p-6">
@@ -77,10 +104,29 @@ export default function Categorias() {
         {categorias.length === 0 ? (
           <p className="p-6 text-sm text-muted-foreground">Aún no hay categorías.</p>
         ) : (
-          <ul className="divide-y divide-border">
+          <ul>
             {categorias.map((c) => (
-              <li key={c.categoriaId} className="px-6 py-3 text-sm">
-                {c.nombre}
+              <li key={c.categoriaId} className="flex items-center justify-between gap-4 px-6 py-3 text-sm">
+                <span>{c.nombre}</span>
+                <span className="flex items-center gap-4">
+                  {!c.disponible && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-primary"
+                      disabled={reenviando === c.categoriaId}
+                      onClick={() => reenviar(c.categoriaId)}
+                    >
+                      {reenviando === c.categoriaId ? "Reenviando..." : "Reenviar"}
+                    </Button>
+                  )}
+                  <span className="inline-flex items-center gap-2 whitespace-nowrap">
+                    <span
+                      className={`h-2 w-3.5 rounded-[2px] ${c.disponible ? "bg-[#16a34a]" : "bg-[#d97706]"}`}
+                    />
+                    {c.disponible ? "Disponible" : "Pendiente"}
+                  </span>
+                </span>
               </li>
             ))}
           </ul>
