@@ -9,13 +9,18 @@ const SesionContext = createContext(null);
 export function SesionProvider({ children }) {
   const [usuario, setUsuario] = useState(null);
   const [cargando, setCargando] = useState(true);
+  const [errorLogin, setErrorLogin] = useState(null);
 
   // Al abrir la pagina se recupera la sesion: Microsoft o usuario de prueba guardado
   useEffect(() => {
     if (MODO_ENTRA) {
       recuperarUsuario()
         .then(setUsuario)
-        .catch(() => setUsuario(null))
+        .catch((e) => {
+          console.error(e);
+          setErrorLogin(e.message || String(e));
+          setUsuario(null);
+        })
         .finally(() => setCargando(false));
     } else {
       setUsuario(getUsuarioGuardado());
@@ -42,7 +47,7 @@ export function SesionProvider({ children }) {
   }
 
   return (
-    <SesionContext.Provider value={{ usuario, cargando, entrar, entrarConMicrosoft, salir }}>
+    <SesionContext.Provider value={{ usuario, cargando, errorLogin, entrar, entrarConMicrosoft, salir }}>
       {children}
     </SesionContext.Provider>
   );

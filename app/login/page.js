@@ -16,7 +16,7 @@ function retraso(ms) {
 
 export default function Login() {
   const router = useRouter();
-  const { entrar, entrarConMicrosoft } = useSesion();
+  const { entrar, entrarConMicrosoft, errorLogin } = useSesion();
 
   function ingresar(usuario) {
     entrar(usuario.id);
@@ -57,6 +57,10 @@ export default function Login() {
           <p className="mt-1 text-sm text-muted-foreground">
             {MODO_ENTRA ? "Entra con tu cuenta de Microsoft" : "Elige un perfil de prueba para entrar"}
           </p>
+
+          {errorLogin && (
+            <div className="mt-4 rounded-lg bg-[#fee2e2] px-4 py-3 text-sm text-[#b91c1c]">{errorLogin}</div>
+          )}
 
           {MODO_ENTRA && (
             <Button
