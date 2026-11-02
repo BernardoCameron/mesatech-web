@@ -49,3 +49,6 @@ next-env.d.ts
 .vscode/
 *.iml
 Thumbs.db
+
+# Certificados de origen (Cloudflare)
+deploy/certs/
