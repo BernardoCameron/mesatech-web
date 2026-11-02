@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
@@ -16,7 +17,13 @@ function retraso(ms) {
 
 export default function Login() {
   const router = useRouter();
-  const { entrar, entrarConMicrosoft, errorLogin } = useSesion();
+  const { usuario, cargando, entrar, entrarConMicrosoft, errorLogin } = useSesion();
+
+  // Si ya hay sesion, se va directo a la pantalla principal
+  useEffect(() => {
+    if (cargando || !usuario) return;
+    router.replace(usuario.rol === "Cliente" ? "/mis-solicitudes" : "/solicitudes");
+  }, [usuario, cargando, router]);
 
   function ingresar(usuario) {
     entrar(usuario.id);
