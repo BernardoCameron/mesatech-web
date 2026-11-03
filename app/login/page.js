@@ -7,6 +7,7 @@ import { FondoEstados } from "@/components/fondo-estados";
 import { TicketVivo } from "@/components/ticket-vivo";
 import { useSesion } from "@/components/sesion-provider";
 import { USUARIOS_PRUEBA } from "@/lib/sesion";
+import { MODO_ENTRA } from "@/lib/entra";
 
 // Cada elemento entra con un pequeño retraso (ver .entrada en globals.css)
 function retraso(ms) {
@@ -15,7 +16,7 @@ function retraso(ms) {
 
 export default function Login() {
   const router = useRouter();
-  const { entrar } = useSesion();
+  const { entrar, entrarConMicrosoft } = useSesion();
 
   function ingresar(usuario) {
     entrar(usuario.id);
@@ -54,9 +55,22 @@ export default function Login() {
         >
           <h2 className="text-2xl font-medium tracking-tight">Iniciar sesión</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Elige un perfil de prueba para entrar
+            {MODO_ENTRA ? "Entra con tu cuenta de Microsoft" : "Elige un perfil de prueba para entrar"}
           </p>
 
+          {MODO_ENTRA && (
+            <Button
+              variant="mint"
+              size="lg"
+              className="entrada mt-6 h-12 w-full"
+              style={retraso(380)}
+              onClick={entrarConMicrosoft}
+            >
+              Continuar con Microsoft
+            </Button>
+          )}
+
+          {!MODO_ENTRA && (
           <div className="mt-6 space-y-3">
             {USUARIOS_PRUEBA.map((u, i) => (
               <Button
@@ -73,20 +87,25 @@ export default function Login() {
               </Button>
             ))}
           </div>
+          )}
 
-          <Button
-            variant="secondary"
-            disabled
-            className="entrada mt-8 h-12 w-full justify-between px-4 text-muted-foreground"
-            style={retraso(680)}
-          >
-            Continuar con Microsoft
-            <span className="rounded bg-card px-2 py-0.5 text-[13px]">Próximamente</span>
-          </Button>
+          {!MODO_ENTRA && (
+            <>
+              <Button
+                variant="secondary"
+                disabled
+                className="entrada mt-8 h-12 w-full justify-between px-4 text-muted-foreground"
+                style={retraso(680)}
+              >
+                Continuar con Microsoft
+                <span className="rounded bg-card px-2 py-0.5 text-[13px]">Próximamente</span>
+              </Button>
 
-          <p className="mt-6 text-center text-[13px] text-muted-foreground">
-            Ambiente de pruebas. Los datos no son reales.
-          </p>
+              <p className="mt-6 text-center text-[13px] text-muted-foreground">
+                Ambiente de pruebas. Los datos no son reales.
+              </p>
+            </>
+          )}
         </div>
       </section>
     </div>
