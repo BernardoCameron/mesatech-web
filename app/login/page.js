@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
@@ -8,6 +9,7 @@ import { TicketVivo } from "@/components/ticket-vivo";
 import { useSesion } from "@/components/sesion-provider";
 import { USUARIOS_PRUEBA } from "@/lib/sesion";
 import { MODO_ENTRA } from "@/lib/entra";
+import { PantallaCarga } from "@/components/pantalla-carga";
 
 // Cada elemento entra con un pequeño retraso (ver .entrada en globals.css)
 function retraso(ms) {
@@ -16,12 +18,21 @@ function retraso(ms) {
 
 export default function Login() {
   const router = useRouter();
-  const { entrar, entrarConMicrosoft } = useSesion();
+  const { usuario, cargando, entrar, entrarConMicrosoft, errorLogin } = useSesion();
+
+  // Si ya hay sesion, se va directo a la pantalla principal
+  useEffect(() => {
+    if (cargando || !usuario) return;
+    router.replace(usuario.rol === "Cliente" ? "/mis-solicitudes" : "/solicitudes");
+  }, [usuario, cargando, router]);
 
   function ingresar(usuario) {
     entrar(usuario.id);
     router.push(usuario.rol === "Cliente" ? "/mis-solicitudes" : "/solicitudes");
   }
+
+  // Con Microsoft no se muestra el login hasta saber que no hay sesion
+  if (MODO_ENTRA && (cargando || usuario)) return <PantallaCarga />;
 
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
@@ -57,6 +68,10 @@ export default function Login() {
           <p className="mt-1 text-sm text-muted-foreground">
             {MODO_ENTRA ? "Entra con tu cuenta de Microsoft" : "Elige un perfil de prueba para entrar"}
           </p>
+
+          {errorLogin && (
+            <div className="mt-4 rounded-lg bg-[#fee2e2] px-4 py-3 text-sm text-[#b91c1c]">{errorLogin}</div>
+          )}
 
           {MODO_ENTRA && (
             <Button

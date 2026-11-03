@@ -5,7 +5,9 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { ClipboardList, Inbox, LogOut, Plus, Tag } from "lucide-react";
 import { Logo } from "@/components/logo";
+import { MODO_ENTRA } from "@/lib/entra";
 import { useSesion } from "@/components/sesion-provider";
+import { PantallaCarga } from "@/components/pantalla-carga";
 
 const TODOS = ["Cliente", "Operador", "Administrador"];
 
@@ -30,11 +32,12 @@ export default function LayoutApp({ children }) {
     else if (itemActual && !itemActual.roles.includes(usuario.rol)) router.replace("/mis-solicitudes");
   }, [usuario, cargando, itemActual, router]);
 
-  if (cargando || !usuario) return null;
+  if (cargando || !usuario) return <PantallaCarga />;
 
   function cerrarSesion() {
     salir();
-    router.push("/login");
+    // Con Microsoft, salir() redirige solo; en modo prueba se vuelve al login
+    if (!MODO_ENTRA) router.push("/login");
   }
 
   return (

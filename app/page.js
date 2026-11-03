@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSesion } from "@/components/sesion-provider";
+import { PantallaCarga } from "@/components/pantalla-carga";
 
 // Entrada: manda al login o a la pantalla principal segun el rol
 export default function Inicio() {
@@ -16,5 +17,5 @@ export default function Inicio() {
     else router.replace("/solicitudes");
   }, [usuario, cargando, router]);
 
-  return null;
+  return <PantallaCarga />;
 }

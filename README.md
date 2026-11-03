@@ -1,36 +1,37 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# MesaTech Cloud: front
 
-## Getting Started
+Front de MesaTech Cloud (EP2, DSY1107). Next.js (App Router), Tailwind y shadcn/ui. Habla solo con el BFF
+(repo `mesatech-backend`) por HTTP.
 
-First, run the development server:
+## Correr en local
 
 ```bash
+cp .env.example .env.local
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Con `NEXT_PUBLIC_AUTH=prueba` el login muestra 3 perfiles fijos (Administrador, Operador y Cliente) y el
+BFF debe correr con el perfil `sinauth`. Con `NEXT_PUBLIC_AUTH=entra` el login usa Microsoft Entra ID y
+manda el token al BFF; ahi hay que completar las variables `NEXT_PUBLIC_AZURE_*` del `.env.example`.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+Las variables `NEXT_PUBLIC_*` se fijan al compilar: si las cambias, vuelve a hacer el build.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Docker en local
 
-## Learn More
+```bash
+docker compose up -d --build
+```
 
-To learn more about Next.js, take a look at the following resources:
+Queda en http://localhost:3000 y espera el BFF en http://localhost:8080.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Despliegue en EC2 (EP2)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+La EC2 `ep2-web` corre nginx (443), el front y el BFF. Esta todo en `deploy/`:
 
-## Deploy on Vercel
+1. Clonar `mesatech-web` y `mesatech-backend` lado a lado en la EC2.
+2. Poner el Origin Certificate de Cloudflare en `deploy/certs/` como `origen.pem` y `origen.key`.
+3. `cd deploy`, copiar `.env.example` a `.env` y completar los datos de Entra ID.
+4. `docker compose up -d --build`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Cloudflare apunta `mesatech` y `mesatech-api` a la IP elastica de la EC2, con SSL Full (strict).
