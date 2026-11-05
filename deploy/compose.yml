@@ -19,7 +19,8 @@ services:
     build:
       context: ..
       args:
-        NEXT_PUBLIC_API_URL: https://${DOMINIO_API}
+        # El front llama a la API por el API Gateway (que reenvia al BFF)
+        NEXT_PUBLIC_API_URL: ${API_URL}
         NEXT_PUBLIC_AUTH: entra
         NEXT_PUBLIC_AZURE_TENANT_ID: ${AZURE_TENANT_ID}
         NEXT_PUBLIC_AZURE_WEB_CLIENT_ID: ${AZURE_WEB_CLIENT_ID}
