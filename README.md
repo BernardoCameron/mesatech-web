@@ -13,7 +13,7 @@ Las variables `NEXT_PUBLIC_*` se fijan en el build; si cambian, hay que recompil
 
 | Variable | Descripción |
 |---|---|
-| `NEXT_PUBLIC_API_URL` | URL del BFF |
+| `NEXT_PUBLIC_API_URL` | URL de la API: el API Gateway en AWS, o el BFF en local |
 | `NEXT_PUBLIC_AUTH` | `prueba` (3 perfiles fijos, BFF con perfil `sinauth`) o `entra` (Microsoft Entra ID) |
 | `NEXT_PUBLIC_AZURE_TENANT_ID` | Tenant de Entra ID |
 | `NEXT_PUBLIC_AZURE_WEB_CLIENT_ID` | Client ID de la app del front (SPA) |
@@ -51,6 +51,7 @@ Requiere `mesatech-web` y `mesatech-backend` clonados en el mismo directorio.
 | Elemento | Configuración |
 |---|---|
 | Cloudflare | Registros A de front y API hacia la IP elástica, con proxy; SSL/TLS Full (strict) |
+| API Gateway | HTTP API con autorizador JWT de Entra ID. Ruta `ANY /{proxy+}` hacia `https://<dominio-api>/{proxy}` y `OPTIONS /{proxy+}` sin autorizador para CORS. El front lo usa como `API_URL` |
 | Security group | 443 solo desde los rangos de Cloudflare |
 | Entra ID | Redirect URI del front en la app `mesatech-frontend` |
 
